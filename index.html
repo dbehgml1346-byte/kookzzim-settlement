@@ -565,6 +565,24 @@ body {
       <div class="card-ttl"><span class="ttl-bar" style="background:var(--blue)"></span>매출 입력</div>
       <input type="hidden" id="f_cash">
       <input type="hidden" id="f_card">
+      <!-- 홀 매출 -->
+      <div style="font-size:11px;font-weight:600;color:var(--text3);padding:6px 0 4px;letter-spacing:0.5px">홀 매출</div>
+      <div class="f-row">
+        <div class="f-label">홀 현금</div>
+        <div class="f-right">
+          <input type="text" inputmode="numeric" class="f-input" id="f_hall_cash" placeholder="0" oninput="fi(this);ct()">
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-label">홀 카드</div>
+        <div class="f-right">
+          <input type="text" inputmode="numeric" class="f-input" id="f_hall_card" placeholder="0" oninput="fi(this);ct()">
+          <div class="fee-hint">수수료 0.8% → <b id="fee_hall_card">0</b>원</div>
+        </div>
+      </div>
+      <input type="hidden" id="f_hall_card_fee">
+      <!-- 배달 매출 -->
+      <div style="font-size:11px;font-weight:600;color:var(--text3);padding:10px 0 4px;letter-spacing:0.5px">배달 매출</div>
       <div class="f-row">
         <div class="f-label">배달의민족</div>
         <div class="f-right">
@@ -634,7 +652,7 @@ body {
 
 <script>
 const URL = 'https://script.google.com/macros/s/AKfycbwuRgnuzIKaeJ2-ogZX_DexT0rq6TU0EurejtcE0tPxmdOf1gr3j0S5-6WxGcpMjgaO/exec';
-const CATS = ['식자재','부자재','인건비','배달대행료','우가클','월세','전기','수도','가스','보험','4대보험','인터넷/전화','기타고정비','기타변동비'];
+const CATS = ['식자재','부자재','인건비','배달대행료','우가클','플레이스광고','SNS광고','기타마케팅','월세','전기','수도','가스','보험','4대보험','인터넷/전화','기타고정비','기타변동비'];
 const COLORS = ['#3182F6','#FF6B35','#00B493','#F5A623','#F04452','#8B5CF6','#06B6D4','#84CC16','#FB923C','#A3E635'];
 
 let state = { store:null, calYear:0, calMonth:0, calData:{}, weekStart:null, currentDate:'' };
@@ -808,7 +826,7 @@ function openForm(ds,data){
   const hasSales=data?.salesRow?.length>0;
   document.getElementById('formTitle').textContent=hasSales?'정산 수정':'정산 입력';
 
-  ['baemin','baeminone','coupang','yogiyo','ddanggyeo','orders'].forEach(k=>{
+  ['hall_cash','hall_card','baemin','baeminone','coupang','yogiyo','ddanggyeo','orders'].forEach(k=>{
     const el=document.getElementById('f_'+k);
     el.value=''; el.dataset.raw='';
   });
@@ -817,6 +835,7 @@ function openForm(ds,data){
 
   if(hasSales){
     const r=data.salesRow;
+    siv('f_hall_cash',r[3]); siv('f_hall_card',r[4]);
     siv('f_baemin',r[5]); siv('f_baeminone',r[7]);
     siv('f_coupang',r[9]); siv('f_yogiyo',r[11]);
     siv('f_ddanggyeo',r[13]); siv('f_orders',r[17]);
@@ -870,7 +889,11 @@ function addExp(data=null){
 
 function ct(){
   const v=gr;
-  const sales=v('f_baemin')+v('f_baeminone')+v('f_coupang')+v('f_yogiyo')+v('f_ddanggyeo');
+  const fhc=Math.round(v('f_hall_card')*0.008); // 홀카드 수수료 0.8%
+  document.getElementById('f_hall_card_fee').value=fhc;
+  document.getElementById('fee_hall_card').textContent=fmtN(fhc);
+
+  const sales=v('f_hall_cash')+v('f_hall_card')+v('f_baemin')+v('f_baeminone')+v('f_coupang')+v('f_yogiyo')+v('f_ddanggyeo');
   const fb=Math.round(v('f_baemin')*0.10);
   const fb1=Math.round(v('f_baeminone')*0.25);
   const fc=Math.round(v('f_coupang')*0.35);
@@ -885,7 +908,7 @@ function ct(){
 
   let exp=0;
   document.querySelectorAll('.exp-amt').forEach(el=>exp+=parseFloat((el.value||'').replace(/,/g,''))||0);
-  const fee=fb+fb1+fc+fy+fd;
+  const fee=fhc+fb+fb1+fc+fy+fd;
   const profit=sales-fee-exp;
 
   document.getElementById('sum_s').textContent=fmtN(sales)+'원';
@@ -898,7 +921,9 @@ function ct(){
 async function saveData(){
   const v=gr;
   const sd={storeCode:state.store.code,date:state.currentDate,
-    cash:0,card:0,baemin:v('f_baemin'),baeminone:v('f_baeminone'),
+    cash:v('f_hall_cash'),card:v('f_hall_card'),
+    hall_card_fee:parseFloat(document.getElementById('f_hall_card_fee').value)||0,
+    baemin:v('f_baemin'),baeminone:v('f_baeminone'),
     coupang:v('f_coupang'),yogiyo:v('f_yogiyo'),ddanggyeo:v('f_ddanggyeo'),
     ddanggyeo_fee:parseFloat(document.getElementById('f_ddanggyeo_fee').value)||0,
     orders:v('f_orders'),memo:document.getElementById('f_memo').value};
