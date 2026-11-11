@@ -2,25 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="국찜정산">
-<meta name="application-name" content="국찜정산">
-<link rel="apple-touch-icon" href="Gemini_Generated_Image_voovmmvoovmmvoov.png">
-<link rel="icon" type="image/png" href="Gemini_Generated_Image_voovmmvoovmmvoov.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>국찜정산</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
 :root {
-  --primary: #FF6B35;
-  --primary-dark: #E85A25;
-  --primary-light: #FFF0EB;
   --bg: #F2F4F6;
   --white: #FFFFFF;
+  --primary: #FF6B35;
+  --primary-light: #FFF0EB;
+  --primary-dark: #E85A25;
   --blue: #3182F6;
   --green: #00B493;
   --red: #F04452;
@@ -29,1099 +20,999 @@
   --text2: #4E5968;
   --text3: #8B95A1;
   --border: #E5E8EB;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --border2: #F2F4F6;
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
 }
-
-html { height: 100%; }
-body {
-  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   background: var(--bg);
   color: var(--text1);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  width: 100%;
   min-height: 100%;
   overflow-x: hidden;
 }
+button, input, select { font-family: inherit; }
+button { touch-action: manipulation; }
+
+/* 화면 폭: 모바일은 꽉 채우고, PC에서는 가운데 480px */
+#app { width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; background: var(--bg); }
 
 /* ── 로딩 ── */
 #loading {
   position: fixed; inset: 0;
-  background: #fff;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 14px; z-index: 9999;
+  background: rgba(255,255,255,0.88);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; gap: 14px;
 }
 .spinner {
-  width: 32px; height: 32px;
-  border: 3px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  width: 36px; height: 36px;
+  border: 3px solid var(--border); border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--text3); font-weight: 500; }
 
-/* ── 화면 전환 ── */
-.screen { display: none !important; }
-.screen.active { display: block !important; }
+.screen { display: none; }
+.screen.active { display: block; }
 
-/* ══════════════════
-   로그인
-══════════════════ */
-#loginScreen {
-  min-height: 100vh;
-  flex-direction: column;
-}
-#loginScreen.active { display: flex !important; }
-
+/* ══ 로그인 ══ */
+#loginScreen { min-height: 100vh; min-height: 100dvh; flex-direction: column; background: var(--white); }
+#loginScreen.active { display: flex; }
 .login-hero {
-  background: linear-gradient(160deg, #FF6B35, #FF9A6C);
-  padding: 64px 24px 52px;
-  text-align: center;
+  background: linear-gradient(160deg, #FF6B35 0%, #FF8C5A 100%);
+  padding: calc(56px + var(--safe-t)) 24px 56px;
+  text-align: center; flex-shrink: 0;
 }
-.login-logo { font-size: 34px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-.login-sub { font-size: 11px; color: rgba(255,255,255,0.75); letter-spacing: 2px; }
-
+.login-logo { font-size: 34px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
+.login-logo-sub { font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 2px; }
 .login-body {
-  flex: 1;
-  background: #fff;
-  border-radius: 24px 24px 0 0;
-  margin-top: -20px;
-  padding: 32px 20px 48px;
+  flex: 1; padding: 28px 20px calc(32px + var(--safe-b));
+  background: var(--white); border-radius: 24px 24px 0 0; margin-top: -22px;
 }
-.login-body h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-.login-body p { font-size: 13px; color: var(--text3); margin-bottom: 28px; line-height: 1.6; }
-
-.input-label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 8px; }
+.login-body h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.login-body p { font-size: 14px; color: var(--text3); margin-bottom: 24px; }
+.login-body p small { font-size: 12px; }
+.input-label { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 8px; display: block; }
 .code-input {
-  width: 100%;
-  background: var(--bg);
-  border: 2px solid transparent;
-  border-radius: var(--radius);
-  color: var(--text1);
-  font-family: inherit;
-  font-size: 24px; font-weight: 700;
-  letter-spacing: 6px;
-  padding: 16px;
-  text-align: center;
-  outline: none;
-  margin-bottom: 16px;
-  transition: border-color 0.2s;
+  width: 100%; height: 60px;
+  background: var(--bg); border: 2px solid transparent; border-radius: var(--radius);
+  color: var(--text1); font-size: 24px; font-weight: 700; letter-spacing: 6px;
+  padding: 0 16px; outline: none; text-align: center; margin-bottom: 18px;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color 0.2s, background 0.2s;
 }
-.code-input:focus { border-color: var(--primary); background: #fff; }
-
+.code-input::placeholder { font-size: 15px; font-weight: 400; letter-spacing: 0; color: var(--text3); }
+.code-input:focus { border-color: var(--primary); background: var(--white); }
 .btn-primary {
-  display: block; width: 100%;
-  background: var(--primary); color: #fff;
+  width: 100%; height: 56px; background: var(--primary); color: #fff;
   border: none; border-radius: var(--radius);
-  padding: 16px; font-family: inherit;
-  font-size: 16px; font-weight: 700;
-  cursor: pointer; transition: background 0.2s;
+  font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 4px;
+  transition: background 0.2s, transform 0.1s;
 }
-.btn-primary:active { background: var(--primary-dark); }
-
-.login-err {
-  display: none; margin-top: 12px;
-  background: var(--red-light); color: var(--red);
-  font-size: 13px; font-weight: 500;
-  text-align: center; padding: 10px;
-  border-radius: var(--radius-sm);
+.btn-primary:active { background: var(--primary-dark); transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.6; }
+.login-error {
+  margin-top: 14px; background: var(--red-light); color: var(--red);
+  font-size: 14px; font-weight: 500; text-align: center;
+  padding: 12px; border-radius: var(--radius-sm); display: none;
 }
-.login-err.show { display: block; }
+.login-error.show { display: block; }
 
-/* ══════════════════
-   메인 레이아웃
-══════════════════ */
-#mainScreen { min-height: 100vh; }
-
+/* ══ 상단 ══ */
+.sticky-top { position: sticky; top: 0; z-index: 100; background: var(--white); }
 .topbar {
-  background: #fff;
-  height: 52px; padding: 0 16px;
-  display: flex; align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100;
+  height: 56px; padding: 0 16px; gap: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border2);
 }
-.topbar-logo { font-size: 18px; font-weight: 800; color: var(--primary); }
+.topbar-logo { font-size: 19px; font-weight: 800; color: var(--primary); flex-shrink: 0; }
 .store-chip {
-  background: var(--primary-light); color: var(--primary);
-  border-radius: 20px; padding: 4px 12px;
-  font-size: 12px; font-weight: 600;
-  max-width: 140px; overflow: hidden;
-  text-overflow: ellipsis; white-space: nowrap;
+  background: var(--primary-light); color: var(--primary); border-radius: 20px;
+  padding: 5px 12px; font-size: 13px; font-weight: 600;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .logout-btn {
-  background: none; border: 1px solid var(--border);
-  color: var(--text3); border-radius: var(--radius-sm);
-  padding: 5px 10px; font-family: inherit;
-  font-size: 12px; cursor: pointer;
+  background: none; border: 1px solid var(--border); color: var(--text3);
+  border-radius: var(--radius-sm); height: 36px; padding: 0 12px;
+  font-size: 13px; cursor: pointer; flex-shrink: 0;
 }
-
-/* ── 탭 ── */
-.tab-nav {
-  background: #fff; display: flex;
-  border-bottom: 1px solid var(--border);
-}
+.tab-nav { display: flex; border-bottom: 1px solid var(--border2); padding: 0 4px; }
 .tab-btn {
-  flex: 1; background: none; border: none;
-  color: var(--text3); font-family: inherit;
-  font-size: 13px; font-weight: 500;
-  padding: 13px 4px; cursor: pointer;
-  position: relative; transition: color 0.2s;
+  flex: 1; height: 48px; background: none; border: none; color: var(--text3);
+  font-size: 15px; font-weight: 500; cursor: pointer; position: relative;
 }
 .tab-btn.active { color: var(--primary); font-weight: 700; }
 .tab-btn.active::after {
-  content: ''; position: absolute;
-  bottom: 0; left: 10px; right: 10px;
-  height: 2px; background: var(--primary);
-  border-radius: 2px;
+  content: ''; position: absolute; bottom: 0; left: 14px; right: 14px;
+  height: 3px; background: var(--primary); border-radius: 3px 3px 0 0;
 }
-.tab-content { display: none; }
+.tab-content { display: none; padding-bottom: calc(24px + var(--safe-b)); }
 .tab-content.active { display: block; }
 
-/* ══════════════════
-   달력
-══════════════════ */
+/* ══ 달력 ══ */
 .cal-header {
-  background: #fff; padding: 14px 16px;
-  display: flex; align-items: center;
-  justify-content: space-between;
+  background: var(--white); display: flex; align-items: center;
+  justify-content: space-between; padding: 14px 16px;
 }
-.cal-title { font-size: 17px; font-weight: 700; }
+.cal-title { font-size: 19px; font-weight: 700; }
 .cal-nav {
-  background: var(--bg); border: none;
-  width: 32px; height: 32px; border-radius: 50%;
-  font-size: 16px; color: var(--text2);
-  cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
+  background: var(--bg); border: none; width: 44px; height: 44px; border-radius: 50%;
+  font-size: 22px; line-height: 1; cursor: pointer; color: var(--text2);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-
+.cal-nav:active { background: var(--border); }
 .month-cards {
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 8px; padding: 0 12px 12px;
-  background: #fff;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  padding: 0 12px 14px; background: var(--white);
 }
-.month-card {
-  background: var(--bg); border-radius: var(--radius);
-  padding: 10px 8px; text-align: center;
-}
-.mc-label { font-size: 10px; color: var(--text3); margin-bottom: 3px; }
-.mc-val { font-size: 12px; font-weight: 700; }
-.mc-val.s { color: var(--blue); }
-.mc-val.e { color: var(--red); }
-.mc-val.pp { color: var(--green); }
-.mc-val.pn { color: var(--red); }
+.month-card { background: var(--bg); border-radius: var(--radius); padding: 12px 6px; text-align: center; min-width: 0; }
+.mc-label { font-size: 12px; color: var(--text3); font-weight: 500; margin-bottom: 2px; }
+.mc-value { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-value.sales { color: var(--blue); }
+.mc-value.expense, .mc-value.profit-neg { color: var(--red); }
+.mc-value.profit-pos { color: var(--green); }
+.cal-hint { font-size: 12px; color: var(--text3); text-align: center; padding: 10px 0 0; }
 
-.cal-grid {
-  margin: 8px 12px 12px;
-  background: #fff; border-radius: var(--radius);
-  overflow: hidden; box-shadow: var(--shadow);
-}
-.cal-weekdays {
-  display: grid; grid-template-columns: repeat(7,1fr);
-  background: var(--bg); padding: 6px 0;
-}
-.cal-wd { text-align: center; font-size: 11px; font-weight: 600; color: var(--text3); }
+.cal-grid { background: var(--white); margin: 10px 8px 0; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--bg); padding: 8px 0; }
+.cal-wd { text-align: center; font-size: 12px; font-weight: 600; color: var(--text3); }
 .cal-wd:first-child { color: var(--red); }
 .cal-wd:last-child { color: var(--blue); }
-
-.cal-days { display: grid; grid-template-columns: repeat(7,1fr); }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); }
 .cal-day {
-  min-height: 58px; padding: 5px 3px;
-  border-right: 1px solid #F2F4F6;
-  border-bottom: 1px solid #F2F4F6;
-  cursor: pointer;
+  min-height: 68px; padding: 6px 1px 4px; min-width: 0;
+  border-right: 1px solid var(--border2); border-bottom: 1px solid var(--border2);
+  cursor: pointer; transition: background 0.15s;
 }
 .cal-day:nth-child(7n) { border-right: none; }
-.cal-day.empty { cursor: default; background: var(--bg); }
+.cal-day.empty { cursor: default; background: #FAFBFC; }
 .cal-day:not(.empty):active { background: var(--primary-light); }
-.cal-day.has-data { background: #FAFFFE; }
-
+.cal-day.has-data { background: #F6FFFC; }
 .day-num {
-  width: 22px; height: 22px; margin: 0 auto 2px;
-  font-size: 12px; font-weight: 600;
+  font-size: 13px; font-weight: 600; width: 24px; height: 24px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 50%;
+  margin: 0 auto 2px; border-radius: 50%;
 }
-.cal-day.today .day-num { background: var(--primary); color: #fff; }
 .cal-day:nth-child(7n+1) .day-num { color: var(--red); }
 .cal-day:nth-child(7n) .day-num { color: var(--blue); }
-
-.day-sales { font-size: 8px; color: var(--blue); font-weight: 600; text-align: center; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.day-expense { font-size: 8px; color: var(--red); font-weight: 500; text-align: center; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* ══════════════════
-   정산 입력 폼
-══════════════════ */
-#formScreen {
-  display: none;
-  position: fixed; inset: 0;
-  background: var(--bg);
-  z-index: 200; overflow-y: auto;
+.cal-day.today .day-num { background: var(--primary); color: #fff !important; }
+.day-sales, .day-expense {
+  font-size: 10.5px; line-height: 1.35; text-align: center;
+  white-space: nowrap; overflow: hidden; letter-spacing: -0.3px;
 }
-#formScreen.active { display: block; }
+.day-sales { color: var(--blue); font-weight: 700; }
+.day-expense { color: var(--red); font-weight: 500; }
 
-.form-bar {
-  background: #fff; height: 52px;
-  display: flex; align-items: center;
-  padding: 0 16px; gap: 12px;
-  position: sticky; top: 0; z-index: 10;
-  border-bottom: 1px solid var(--border);
+/* ══ 입력 폼 (풀스크린) ══ */
+#formScreen {
+  display: none; position: fixed; top: 0; bottom: 0; left: 0; right: 0;
+  width: 100%; max-width: 480px; margin: 0 auto;
+  background: var(--bg); z-index: 200; flex-direction: column;
+}
+#formScreen.active { display: flex; }
+.form-topbar {
+  background: var(--white); height: 56px; flex-shrink: 0;
+  display: flex; align-items: center; padding: 0 12px; gap: 10px;
+  border-bottom: 1px solid var(--border2);
 }
 .back-btn {
-  background: var(--bg); border: none;
-  width: 32px; height: 32px; border-radius: 50%;
-  font-size: 18px; color: var(--text2);
-  cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.form-bar h2 { font-size: 16px; font-weight: 700; flex: 1; }
-.date-chip {
-  background: var(--primary-light); color: var(--primary);
-  border-radius: 20px; padding: 4px 10px;
-  font-size: 12px; font-weight: 600; flex-shrink: 0;
-}
-
-.form-body { padding: 12px 14px 40px; }
-
-.form-card {
-  background: #fff; border-radius: var(--radius);
-  padding: 16px 14px; margin-bottom: 10px;
-  box-shadow: var(--shadow);
-}
-.card-ttl {
-  font-size: 13px; font-weight: 700;
-  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
-}
-.ttl-bar { width: 3px; height: 13px; border-radius: 2px; display: inline-block; }
-
-/* 한 줄 필드 */
-.f-row {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  padding: 9px 0;
-  border-bottom: 1px solid #F2F4F6;
-}
-.f-row:last-child { border-bottom: none; }
-.f-label { font-size: 13px; color: var(--text2); font-weight: 500; flex-shrink: 0; }
-.f-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.f-input {
-  background: var(--bg); border: 1.5px solid transparent;
-  border-radius: var(--radius-sm); color: var(--text1);
-  font-family: inherit; font-size: 15px; font-weight: 600;
-  padding: 7px 10px; text-align: right; outline: none;
-  width: 130px; transition: border-color 0.2s;
-}
-.f-input:focus { border-color: var(--primary); background: #fff; }
-.f-input::placeholder { color: var(--text3); font-weight: 400; font-size: 13px; }
-.fee-hint { font-size: 10px; color: var(--text3); }
-.fee-hint b { color: var(--primary); }
-
-/* 지출 행 */
-.exp-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
-.exp-sel {
-  background: var(--bg); border: 1.5px solid transparent;
-  border-radius: var(--radius-sm); color: var(--text1);
-  font-family: inherit; font-size: 12px; padding: 9px 6px;
-  outline: none; flex: 1; min-width: 0;
-}
-.exp-sel:focus { border-color: var(--primary); }
-.exp-amt {
-  background: var(--bg); border: 1.5px solid transparent;
-  border-radius: var(--radius-sm); color: var(--text1);
-  font-family: inherit; font-size: 13px; font-weight: 600;
-  padding: 9px 8px; text-align: right;
-  outline: none; width: 100px; flex-shrink: 0;
-}
-.exp-amt:focus { border-color: var(--primary); }
-.del-btn {
-  background: var(--red-light); border: none; color: var(--red);
-  width: 30px; height: 34px; border-radius: var(--radius-sm);
-  cursor: pointer; font-size: 15px; flex-shrink: 0;
+  background: var(--bg); border: none; width: 44px; height: 44px; border-radius: 50%;
+  font-size: 20px; cursor: pointer; color: var(--text2); flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
-.add-exp-btn {
-  width: 100%; background: none; border: 1.5px dashed var(--border);
-  color: var(--text3); border-radius: var(--radius-sm);
-  padding: 9px; font-family: inherit; font-size: 12px;
-  cursor: pointer; margin-top: 4px;
+.form-topbar h2 { font-size: 17px; font-weight: 700; flex: 1; }
+.date-chip {
+  background: var(--primary-light); color: var(--primary); border-radius: 20px;
+  padding: 5px 12px; font-size: 13px; font-weight: 600; flex-shrink: 0;
 }
-.add-exp-btn:active { border-color: var(--primary); color: var(--primary); }
+.form-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 20px; }
+.form-card { background: var(--white); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow-sm); }
+.card-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.card-title-bar { width: 4px; height: 16px; background: var(--primary); border-radius: 2px; display: inline-block; }
 
-/* 합계 */
-.sum-card {
-  background: #fff; border-radius: var(--radius);
-  padding: 14px; margin-bottom: 10px;
-  box-shadow: var(--shadow);
-  display: flex; justify-content: space-between;
+.field-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border2);
 }
-.sum-item { text-align: center; flex: 1; }
-.sum-item + .sum-item { border-left: 1px solid #F2F4F6; }
-.sum-lbl { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
-.sum-val { font-size: 14px; font-weight: 700; }
-.sv-s { color: var(--blue); }
-.sv-e { color: var(--red); }
-.sv-p { color: var(--green); }
+.field-row:last-child { border-bottom: none; padding-bottom: 0; }
+.field-label { font-size: 15px; color: var(--text2); font-weight: 500; flex-shrink: 0; }
+.field-right { display: flex; flex-direction: column; align-items: flex-end; flex: 1; min-width: 0; }
+.field-input {
+  width: 100%; max-width: 190px; height: 46px;
+  background: var(--bg); border: 1.5px solid transparent; border-radius: var(--radius-sm);
+  color: var(--text1); font-size: 17px; font-weight: 600; padding: 0 12px;
+  outline: none; text-align: right; -webkit-appearance: none; appearance: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.field-input.memo { max-width: none; text-align: left; font-weight: 400; font-size: 16px; }
+.field-input:focus { border-color: var(--primary); background: var(--white); }
+.field-input::placeholder { color: var(--text3); font-weight: 400; }
+.fee-hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.fee-hint span { color: var(--primary); font-weight: 600; }
 
+.expense-row { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.exp-select, .exp-input {
+  height: 46px; background: var(--bg); border: 1.5px solid transparent;
+  border-radius: var(--radius-sm); color: var(--text1); font-size: 16px; outline: none;
+  -webkit-appearance: none; appearance: none;
+}
+.exp-select {
+  flex: 1; min-width: 0; padding: 0 28px 0 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B95A1' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+.exp-input { width: 38%; max-width: 150px; flex-shrink: 0; padding: 0 10px; text-align: right; font-weight: 600; }
+.exp-select:focus, .exp-input:focus { border-color: var(--primary); background-color: var(--white); }
+.del-btn {
+  background: var(--red-light); border: none; color: var(--red);
+  width: 44px; height: 46px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 20px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.add-row-btn {
+  background: none; border: 1.5px dashed var(--border); color: var(--text2);
+  width: 100%; height: 48px; border-radius: var(--radius-sm);
+  font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 2px;
+}
+.add-row-btn:active { border-color: var(--primary); color: var(--primary); }
+
+/* 하단 고정 합계 + 저장 */
+.form-footer {
+  flex-shrink: 0; background: var(--white);
+  padding: 10px 12px calc(10px + var(--safe-b));
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.07);
+}
+.sum-row { display: flex; margin-bottom: 10px; }
+.sum-item { text-align: center; flex: 1; min-width: 0; }
+.sum-item + .sum-item { border-left: 1px solid var(--border2); }
+.sum-label { font-size: 12px; color: var(--text3); font-weight: 500; }
+.sum-val { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sum-val.s { color: var(--blue); }
+.sum-val.e { color: var(--red); }
+.sum-val.p { color: var(--green); }
 .btn-save {
-  width: 100%; background: var(--primary); color: #fff;
+  width: 100%; height: 54px; background: var(--primary); color: #fff;
   border: none; border-radius: var(--radius);
-  padding: 15px; font-family: inherit;
-  font-size: 15px; font-weight: 700; cursor: pointer;
+  font-size: 17px; font-weight: 700; cursor: pointer;
 }
 .btn-save:active { background: var(--primary-dark); }
+.btn-save:disabled { opacity: 0.6; }
 
-/* ══════════════════
-   보고서
-══════════════════ */
-.report-wrap { padding: 12px 14px; }
-.r-controls { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-.r-sel {
-  background: #fff; border: 1px solid var(--border);
-  color: var(--text1); border-radius: var(--radius-sm);
-  padding: 8px 10px; font-family: inherit;
-  font-size: 13px; outline: none; flex: 1;
+/* ══ 리포트 ══ */
+.report-wrap { padding: 12px; }
+.report-controls { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+.r-select {
+  flex: 1; min-width: 0; height: 46px; background: var(--white);
+  border: 1px solid var(--border); color: var(--text1); border-radius: var(--radius-sm);
+  padding: 0 10px; font-size: 16px; outline: none;
 }
 .btn-load {
-  background: var(--primary); color: #fff; border: none;
-  border-radius: var(--radius-sm); padding: 8px 16px;
-  font-family: inherit; font-size: 13px; font-weight: 600;
-  cursor: pointer; flex-shrink: 0;
+  background: var(--primary); color: #fff; border: none; border-radius: var(--radius-sm);
+  height: 46px; padding: 0 20px; font-size: 15px; font-weight: 600; cursor: pointer; flex-shrink: 0;
 }
+.week-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.week-lbl { font-size: 17px; font-weight: 700; flex: 1; text-align: center; }
+.week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 12px; }
+.wday-card { background: var(--white); border-radius: var(--radius-sm); padding: 8px 1px; text-align: center; box-shadow: var(--shadow-sm); min-width: 0; }
+.wday-card.today { outline: 2px solid var(--primary); outline-offset: -2px; }
+.wday-name { font-size: 12px; color: var(--text3); }
+.wday-date { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.wday-sales { font-size: 11px; color: var(--blue); font-weight: 700; white-space: nowrap; overflow: hidden; letter-spacing: -0.3px; }
 
 .profit-banner {
-  background: linear-gradient(135deg, #E6FAF5, #F0FDF9);
-  border: 1px solid #B8F0E0; border-radius: var(--radius);
-  padding: 16px 14px; margin-bottom: 10px;
+  background: linear-gradient(135deg, #E6FAF5 0%, #F0FDF9 100%);
+  border: 1px solid #B8F0E0; border-radius: var(--radius-lg);
+  padding: 18px 16px; margin-bottom: 10px;
 }
-.profit-banner.neg {
-  background: linear-gradient(135deg, #FEF0F1, #FFF5F5);
-  border-color: #FCCFD3;
-}
-.pb-lbl { font-size: 11px; color: var(--text3); margin-bottom: 3px; }
-.pb-val { font-size: 24px; font-weight: 800; color: var(--green); }
-.profit-banner.neg .pb-val { color: var(--red); }
-.pb-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; }
-.pb-mi { font-size: 12px; color: var(--text2); }
-.pb-mi span { font-weight: 700; color: var(--text1); }
+.profit-banner.neg { background: linear-gradient(135deg, #FEF0F1 0%, #FFF5F5 100%); border-color: #FCCFD3; }
+.pb-label { font-size: 13px; color: var(--text3); font-weight: 500; margin-bottom: 2px; }
+.pb-value { font-size: 28px; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
+.profit-banner.neg .pb-value { color: var(--red); }
+.pb-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-top: 12px; }
+.pb-meta-item { font-size: 13px; color: var(--text2); display: flex; justify-content: space-between; gap: 6px; }
+.pb-meta-item span { font-weight: 700; color: var(--text1); white-space: nowrap; }
 
-.r-card {
-  background: #fff; border-radius: var(--radius);
-  padding: 14px; margin-bottom: 10px;
-  box-shadow: var(--shadow);
-}
-.r-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
-
-.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.bar-lbl { font-size: 11px; color: var(--text2); width: 64px; flex-shrink: 0; text-align: right; }
-.bar-track { flex: 1; background: var(--bg); border-radius: 3px; height: 6px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
-.bar-amt { font-size: 10px; color: var(--text3); width: 52px; text-align: right; flex-shrink: 0; }
-
+.r-card { background: var(--white); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow-sm); }
+.r-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+.r-card h3 small { font-size: 12px; font-weight: 400; color: var(--text3); }
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.bar-row:last-child { margin-bottom: 0; }
+.bar-lbl { font-size: 13px; color: var(--text2); width: 76px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; background: var(--bg); border-radius: 4px; height: 8px; overflow: hidden; min-width: 0; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.bar-amt { font-size: 13px; color: var(--text2); font-weight: 600; width: 68px; text-align: right; flex-shrink: 0; white-space: nowrap; }
 .donut-wrap { display: flex; align-items: center; gap: 14px; }
-.donut-legend { flex: 1; }
-.leg-item { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.donut-wrap svg { flex-shrink: 0; }
+.donut-legend { flex: 1; min-width: 0; }
+.leg-item { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 13px; }
 .leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.leg-lbl { font-size: 11px; color: var(--text2); flex: 1; }
-.leg-pct { font-size: 11px; font-weight: 700; }
+.leg-lbl { color: var(--text2); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.leg-pct { font-weight: 700; flex-shrink: 0; }
+.empty-msg { color: var(--text3); font-size: 14px; padding: 8px 0; }
 
-/* 주간 */
-.week-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.week-lbl { font-size: 14px; font-weight: 700; flex: 1; }
-.btn-wload {
-  background: var(--primary); color: #fff; border: none;
-  border-radius: var(--radius-sm); padding: 6px 12px;
-  font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
-}
-.week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 10px; }
-.wday-card {
-  background: #fff; border-radius: var(--radius-sm);
-  padding: 7px 3px; text-align: center; box-shadow: var(--shadow);
-}
-.wday-name { font-size: 9px; color: var(--text3); }
-.wday-date { font-size: 13px; font-weight: 700; margin: 2px 0; }
-.wday-sales { font-size: 8px; color: var(--blue); font-weight: 600; }
-
-/* 토스트 */
+/* ── 토스트 ── */
 .toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: var(--text1); color: #fff;
-  border-radius: 20px; padding: 11px 18px;
-  font-size: 13px; font-weight: 500;
-  z-index: 9999; white-space: nowrap;
+  position: fixed; left: 50%; bottom: calc(28px + var(--safe-b));
+  transform: translateX(-50%) translateY(120px);
+  background: var(--text1); color: #fff; border-radius: 24px;
+  padding: 13px 22px; font-size: 14px; font-weight: 500; z-index: 10000;
+  max-width: calc(100% - 32px); text-align: center;
   transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-lg);
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
-.toast.ok { background: var(--green); }
-.toast.err { background: var(--red); }
+.toast.success { background: var(--green); }
+.toast.error { background: var(--red); }
+
+/* 아주 좁은 화면 (360px 미만) */
+@media (max-width: 359px) {
+  .field-label { font-size: 14px; }
+  .field-input { max-width: 150px; }
+  .mc-value, .sum-val { font-size: 13px; }
+  .day-sales, .day-expense { font-size: 9.5px; }
+}
 </style>
 </head>
 <body>
 
 <div id="loading">
-  <div style="font-size:22px;font-weight:800;color:var(--primary)">국찜정산</div>
+  <div style="font-size:24px;font-weight:800;color:var(--primary)">국찜정산</div>
   <div class="spinner"></div>
-  <div style="font-size:12px;color:var(--text3)">잠시만 기다려 주세요</div>
+  <div class="loading-text">잠시만 기다려 주세요</div>
 </div>
 
-<!-- 로그인 -->
-<div id="loginScreen" class="screen">
-  <div class="login-hero">
-    <div class="login-logo">국찜정산</div>
-    <div class="login-sub">FRANCHISE SETTLEMENT SYSTEM</div>
-  </div>
-  <div class="login-body">
-    <h2>점포 로그인</h2>
-    <p>담당자에게 받은 점포코드를 입력하세요<br>
-      <span style="font-size:11px;color:var(--text3)">예: 1 또는 00001 모두 가능</span>
-    </p>
-    <label class="input-label">점포코드</label>
-    <input type="text" id="storeCodeInput" class="code-input"
-           placeholder="00001" maxlength="5" inputmode="numeric">
-    <button class="btn-primary" onclick="login()">입장하기</button>
-    <div class="login-err" id="loginErr"></div>
-  </div>
-</div>
+<div id="app">
 
-<!-- 메인 -->
-<div id="mainScreen" class="screen">
-  <div class="topbar">
-    <div class="topbar-logo">국찜정산</div>
-    <div class="store-chip" id="storeBadge"></div>
-    <button class="logout-btn" onclick="logout()">로그아웃</button>
-  </div>
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('calendar',this)">📅 달력</button>
-    <button class="tab-btn" onclick="switchTab('weekly',this)">📊 주간</button>
-    <button class="tab-btn" onclick="switchTab('monthly',this)">📈 월간</button>
-  </div>
-
-  <!-- 달력 -->
-  <div id="tab-calendar" class="tab-content active">
-    <div class="cal-header">
-      <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
-      <div class="cal-title" id="calTitle"></div>
-      <button class="cal-nav" onclick="changeMonth(1)">›</button>
+  <!-- 로그인 -->
+  <div id="loginScreen" class="screen">
+    <div class="login-hero">
+      <div class="login-logo">국찜정산</div>
+      <div class="login-logo-sub">FRANCHISE SETTLEMENT SYSTEM</div>
     </div>
-    <div class="month-cards" id="monthCards"></div>
-    <div class="cal-grid">
-      <div class="cal-weekdays">
-        <div class="cal-wd">일</div><div class="cal-wd">월</div>
-        <div class="cal-wd">화</div><div class="cal-wd">수</div>
-        <div class="cal-wd">목</div><div class="cal-wd">금</div>
-        <div class="cal-wd">토</div>
-      </div>
-      <div class="cal-days" id="calDays"></div>
-    </div>
-    <div style="height:16px"></div>
-  </div>
-
-  <!-- 주간 -->
-  <div id="tab-weekly" class="tab-content">
-    <div class="report-wrap">
-      <div class="week-nav">
-        <button class="cal-nav" onclick="changeWeek(-1)">‹</button>
-        <div class="week-lbl" id="weekLabel"></div>
-        <button class="cal-nav" onclick="changeWeek(1)">›</button>
-        <button class="btn-wload" onclick="loadWeekReport()">조회</button>
-      </div>
-      <div class="week-grid" id="weekGrid"></div>
-      <div id="weekContent"></div>
+    <div class="login-body">
+      <h2>점포 로그인</h2>
+      <p>담당자에게 받은 점포코드를 입력해 주세요<br><small>예: 1 또는 00001 모두 가능</small></p>
+      <label class="input-label" for="storeCodeInput">점포코드</label>
+      <input type="text" id="storeCodeInput" class="code-input" placeholder="예) 1 또는 00001"
+             maxlength="5" inputmode="numeric" pattern="[0-9]*" autocomplete="username">
+      <label class="input-label" for="storePwInput">비밀번호</label>
+      <input type="password" id="storePwInput" class="code-input" placeholder="사업자번호 뒤 5자리"
+             maxlength="5" inputmode="numeric" pattern="[0-9]*" autocomplete="current-password">
+      <button class="btn-primary" id="loginBtn" onclick="login()">입장하기</button>
+      <div class="login-error" id="loginError"></div>
     </div>
   </div>
 
-  <!-- 월간 -->
-  <div id="tab-monthly" class="tab-content">
-    <div class="report-wrap">
-      <div class="r-controls">
-        <select class="r-sel" id="rYear"></select>
-        <select class="r-sel" id="rMonth">
-          <option value="1">1월</option><option value="2">2월</option>
-          <option value="3">3월</option><option value="4">4월</option>
-          <option value="5">5월</option><option value="6">6월</option>
-          <option value="7">7월</option><option value="8">8월</option>
-          <option value="9">9월</option><option value="10">10월</option>
-          <option value="11">11월</option><option value="12">12월</option>
-        </select>
-        <button class="btn-load" onclick="loadMonthReport()">조회</button>
+  <!-- 메인 -->
+  <div id="mainScreen" class="screen">
+    <div class="sticky-top">
+      <div class="topbar">
+        <div class="topbar-logo">국찜정산</div>
+        <div class="store-chip" id="storeBadge"></div>
+        <button class="logout-btn" onclick="logout()">로그아웃</button>
       </div>
-      <div id="monthContent"></div>
-    </div>
-  </div>
-</div>
-
-<!-- 정산 폼 -->
-<div id="formScreen">
-  <div class="form-bar">
-    <button class="back-btn" onclick="closeForm()">←</button>
-    <h2 id="formTitle">정산 입력</h2>
-    <div class="date-chip" id="formDate"></div>
-  </div>
-  <div class="form-body">
-    <div class="form-card">
-      <div class="card-ttl"><span class="ttl-bar" style="background:var(--blue)"></span>매출 입력</div>
-      <input type="hidden" id="f_cash">
-      <input type="hidden" id="f_card">
-      <!-- 홀 매출 -->
-      <div style="font-size:11px;font-weight:600;color:var(--text3);padding:6px 0 4px;letter-spacing:0.5px">홀 매출</div>
-      <div class="f-row">
-        <div class="f-label">홀 현금</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_hall_cash" placeholder="0" oninput="fi(this);ct()">
-        </div>
-      </div>
-      <div class="f-row">
-        <div class="f-label">홀 카드</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_hall_card" placeholder="0" oninput="fi(this);ct()">
-          <div class="fee-hint">수수료 0.8% → <b id="fee_hall_card">0</b>원</div>
-        </div>
-      </div>
-      <input type="hidden" id="f_hall_card_fee">
-      <!-- 배달 매출 -->
-      <div style="font-size:11px;font-weight:600;color:var(--text3);padding:10px 0 4px;letter-spacing:0.5px">배달 매출</div>
-      <div class="f-row">
-        <div class="f-label">배달의민족</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_baemin" placeholder="0" oninput="fi(this);ct()">
-          <div class="fee-hint">수수료 10% → <b id="fee_baemin">0</b>원</div>
-        </div>
-      </div>
-      <div class="f-row">
-        <div class="f-label">배민원</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_baeminone" placeholder="0" oninput="fi(this);ct()">
-          <div class="fee-hint">수수료 25% → <b id="fee_baeminone">0</b>원</div>
-        </div>
-      </div>
-      <div class="f-row">
-        <div class="f-label">쿠팡이츠</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_coupang" placeholder="0" oninput="fi(this);ct()">
-          <div class="fee-hint">수수료 35% → <b id="fee_coupang">0</b>원</div>
-        </div>
-      </div>
-      <div class="f-row">
-        <div class="f-label">요기요</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_yogiyo" placeholder="0" oninput="fi(this);ct()">
-          <div class="fee-hint">수수료 15% → <b id="fee_yogiyo">0</b>원</div>
-        </div>
-      </div>
-      <div class="f-row">
-        <div class="f-label">땡겨요</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_ddanggyeo" placeholder="0" oninput="fi(this);ct()">
-          <div class="fee-hint">수수료 2% → <b id="fee_ddanggyeo">0</b>원</div>
-        </div>
-      </div>
-      <input type="hidden" id="f_ddanggyeo_fee">
-      <div class="f-row">
-        <div class="f-label">주문수</div>
-        <div class="f-right">
-          <input type="text" inputmode="numeric" class="f-input" id="f_orders" placeholder="0" oninput="fi(this);ct()">
-        </div>
-      </div>
-      <div class="f-row">
-        <div class="f-label">비고</div>
-        <div class="f-right">
-          <input type="text" class="f-input" id="f_memo" placeholder="메모" style="text-align:left;font-weight:400;font-size:13px">
-        </div>
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="calendar" onclick="switchTab('calendar')">📅 달력</button>
+        <button class="tab-btn" data-tab="weekly" onclick="switchTab('weekly')">📊 주간</button>
+        <button class="tab-btn" data-tab="monthly" onclick="switchTab('monthly')">📈 월간</button>
       </div>
     </div>
 
-    <div class="form-card">
-      <div class="card-ttl"><span class="ttl-bar" style="background:var(--red)"></span>지출 입력</div>
-      <div id="expItems"></div>
-      <button class="add-exp-btn" onclick="addExp()">+ 지출 항목 추가</button>
+    <!-- 달력 탭 -->
+    <div id="tab-calendar" class="tab-content active">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)" aria-label="이전 달">‹</button>
+        <div class="cal-title" id="calTitle"></div>
+        <button class="cal-nav" onclick="changeMonth(1)" aria-label="다음 달">›</button>
+      </div>
+      <div class="month-cards" id="monthCards"></div>
+      <div class="cal-hint">날짜를 누르면 정산을 입력·수정할 수 있어요</div>
+      <div class="cal-grid">
+        <div class="cal-weekdays">
+          <div class="cal-wd">일</div><div class="cal-wd">월</div><div class="cal-wd">화</div>
+          <div class="cal-wd">수</div><div class="cal-wd">목</div><div class="cal-wd">금</div>
+          <div class="cal-wd">토</div>
+        </div>
+        <div class="cal-days" id="calDays"></div>
+      </div>
     </div>
 
-    <div class="sum-card">
-      <div class="sum-item"><div class="sum-lbl">총 매출</div><div class="sum-val sv-s" id="sum_s">0원</div></div>
-      <div class="sum-item"><div class="sum-lbl">총 지출</div><div class="sum-val sv-e" id="sum_e">0원</div></div>
-      <div class="sum-item"><div class="sum-lbl">예상 순익</div><div class="sum-val sv-p" id="sum_p">0원</div></div>
+    <!-- 주간 탭 -->
+    <div id="tab-weekly" class="tab-content">
+      <div class="report-wrap">
+        <div class="week-nav">
+          <button class="cal-nav" onclick="changeWeek(-1)" aria-label="이전 주">‹</button>
+          <div class="week-lbl" id="weekLabel"></div>
+          <button class="cal-nav" onclick="changeWeek(1)" aria-label="다음 주">›</button>
+        </div>
+        <div class="week-grid" id="weekGrid"></div>
+        <div id="weekReportContent"></div>
+      </div>
     </div>
-    <button class="btn-save" onclick="saveData()">💾 정산 저장</button>
+
+    <!-- 월간 탭 -->
+    <div id="tab-monthly" class="tab-content">
+      <div class="report-wrap">
+        <div class="report-controls">
+          <select class="r-select" id="reportYear"></select>
+          <select class="r-select" id="reportMonth"></select>
+          <button class="btn-load" onclick="loadMonthReport()">조회</button>
+        </div>
+        <div id="monthReportContent"></div>
+      </div>
+    </div>
   </div>
+
+  <!-- 정산 입력/수정 -->
+  <div id="formScreen">
+    <div class="form-topbar">
+      <button class="back-btn" onclick="closeForm()" aria-label="뒤로">←</button>
+      <h2 id="formTitle">정산 입력</h2>
+      <div class="date-chip" id="formDateBadge"></div>
+    </div>
+    <div class="form-body" id="formBody">
+      <div class="form-card">
+        <div class="card-title"><span class="card-title-bar"></span>매출 입력</div>
+        <div id="salesFields"></div>
+        <div class="field-row">
+          <div class="field-label">주문수</div>
+          <div class="field-right">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" class="field-input" id="f_orders" placeholder="0" oninput="formatInput(this);calcTotal()">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">비고</div>
+          <div class="field-right">
+            <input type="text" class="field-input memo" id="f_memo" placeholder="메모" maxlength="200">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="card-title"><span class="card-title-bar" style="background:var(--red)"></span>지출 입력</div>
+        <div id="expenseItems"></div>
+        <button class="add-row-btn" onclick="addExpenseItem(null, true)">+ 지출 항목 추가</button>
+      </div>
+    </div>
+    <div class="form-footer">
+      <div class="sum-row">
+        <div class="sum-item"><div class="sum-label">총 매출</div><div class="sum-val s" id="sum_sales">0원</div></div>
+        <div class="sum-item"><div class="sum-label">총 지출</div><div class="sum-val e" id="sum_expense">0원</div></div>
+        <div class="sum-item"><div class="sum-label">예상 순익</div><div class="sum-val p" id="sum_profit">0원</div></div>
+      </div>
+      <button class="btn-save" id="saveBtn" onclick="saveData()">💾 정산 저장</button>
+    </div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbwuRgnuzIKaeJ2-ogZX_DexT0rq6TU0EurejtcE0tPxmdOf1gr3j0S5-6WxGcpMjgaO/exec';
-const CATS = ['식자재','부자재','인건비','배달대행료','우가클','플레이스광고','SNS광고','기타마케팅','월세','전기','수도','가스','보험','4대보험','인터넷/전화','기타고정비','기타변동비'];
-const COLORS = ['#3182F6','#FF6B35','#00B493','#F5A623','#F04452','#8B5CF6','#06B6D4','#84CC16','#FB923C','#A3E635'];
+// GitHub Pages 등 외부에서 열었을 때만 사용 (Apps Script가 직접 띄운 페이지는 google.script.run 사용)
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuRgnuzIKaeJ2-ogZX_DexT0rq6TU0EurejtcE0tPxmdOf1gr3j0S5-6WxGcpMjgaO/exec';
+const HAS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
 
-let state = { store:null, calYear:0, calMonth:0, calData:{}, weekStart:null, currentDate:'' };
+// 서버에서 못 받았을 때만 쓰는 기본값 (실제 요율은 Code.gs 의 FEE_RATES)
+const DEFAULT_RATES = { card: 0.008, baemin: 0.10, baeminone: 0.25, coupang: 0.35, yogiyo: 0.15, ddanggyeo: 0.02, doit: 0 };
+const CHANNELS = [
+  { k: 'baemin',    label: '배달의민족' },
+  { k: 'baeminone', label: '배민원' },
+  { k: 'coupang',   label: '쿠팡이츠' },
+  { k: 'yogiyo',    label: '요기요' },
+  { k: 'ddanggyeo', label: '땡겨요' },
+  { k: 'doit',      label: '두잇' }
+];
+const CATEGORIES = ['식자재','부자재','인건비','배달대행료','우가클','월세','전기','수도','가스','보험','4대보험','인터넷/전화','기타고정비','기타변동비','채널할인'];
+const COLORS = ['#3182F6','#FF6B35','#00B493','#F5A623','#F04452','#8B5CF6','#06B6D4','#84CC16'];
+
+let state = {
+  store: null, pw: null, rates: DEFAULT_RATES,
+  calYear: 0, calMonth: 0, calData: {},
+  weekStart: null, currentDate: '',
+  hidden: { cash: 0, card: 0 },   // 입력란은 없지만 기존 데이터 보존용
+  saving: false
+};
 const today = new Date();
+const $ = id => document.getElementById(id);
 
 // ── 유틸 ──
-const fmtN = n => (!n&&n!==0)?'0':Math.round(n).toLocaleString('ko-KR');
-const padZ = n => String(n).padStart(2,'0');
-const toDS = d => `${d.getFullYear()}-${padZ(d.getMonth()+1)}-${padZ(d.getDate())}`;
-
-function toast(msg, type='ok') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast ${type} show`;
-  setTimeout(()=>t.classList.remove('show'), 2800);
+function fmtN(n) { return Math.round(Number(n) || 0).toLocaleString('ko-KR'); }
+// 좁은 칸용 축약 표기 (1,050,000 → 105만)
+function fmtShort(n) {
+  n = Math.round(Number(n) || 0);
+  const a = Math.abs(n);
+  if (a >= 100000000) return (n / 100000000).toFixed(1).replace(/\.0$/, '') + '억';
+  if (a >= 10000) return (n / 10000).toFixed(a >= 1000000 ? 0 : 1).replace(/\.0$/, '') + '만';
+  return n.toLocaleString('ko-KR');
 }
-function loading(v) { document.getElementById('loading').style.display = v?'flex':'none'; }
+function padZ(n) { return String(n).padStart(2, '0'); }
+function toDateStr(d) { return `${d.getFullYear()}-${padZ(d.getMonth() + 1)}-${padZ(d.getDate())}`; }
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function digits(s) { return parseInt(String(s == null ? '' : s).replace(/[^0-9]/g, ''), 10) || 0; }
+
+let toastTimer = null;
+function showToast(msg, type = 'success') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function showLoading(v) { $('loading').style.display = v ? 'flex' : 'none'; }
 
 // ── API ──
-async function api(action, params={}) {
-  const res = await fetch(URL, {
-    method:'POST',
-    body: JSON.stringify({action,...params}),
-    headers:{'Content-Type':'text/plain'}
-  });
-  return res.json();
+// 모든 요청에 점포코드+비밀번호를 함께 보내 서버에서 매번 검증
+function callServer(payload) {
+  if (HAS_GAS) {
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler(s => { try { resolve(JSON.parse(s)); } catch (e) { reject(e); } })
+        .withFailureHandler(reject)
+        .apiRun(payload);
+    });
+  }
+  return fetch(SCRIPT_URL, { method: 'POST', body: payload, headers: { 'Content-Type': 'text/plain' } })
+    .then(r => r.json());
+}
+async function api(action, params = {}) {
+  const auth = state.store ? { code: state.store.code, pw: state.pw } : {};
+  const data = await callServer(JSON.stringify({ action, ...auth, ...params }));
+  if (data && data.authError) {
+    logout();
+    showToast(data.error || '다시 로그인해 주세요.', 'error');
+    throw new Error(data.error || 'auth');
+  }
+  // 서버가 정상 응답(200) 안에 error 를 담아 보내므로 반드시 확인
+  if (data && data.error) throw new Error(data.error);
+  return data;
 }
 
 // ── 초기화 ──
-window.onload = async () => {
-  const yr = document.getElementById('rYear');
-  for(let y=today.getFullYear();y>=today.getFullYear()-2;y--)
-    yr.innerHTML += `<option value="${y}">${y}년</option>`;
-  document.getElementById('rMonth').value = today.getMonth()+1;
+window.addEventListener('load', () => {
+  const yr = $('reportYear');
+  for (let y = today.getFullYear(); y >= today.getFullYear() - 2; y--) yr.insertAdjacentHTML('beforeend', `<option value="${y}">${y}년</option>`);
+  const mo = $('reportMonth');
+  for (let m = 1; m <= 12; m++) mo.insertAdjacentHTML('beforeend', `<option value="${m}">${m}월</option>`);
+  mo.value = today.getMonth() + 1;
 
-  const saved = sessionStorage.getItem('store');
-  if(saved){ state.store=JSON.parse(saved); showMain(); }
-  else showScreen('loginScreen');
-  loading(false);
-};
+  ['storeCodeInput', 'storePwInput'].forEach(id => {
+    $(id).addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  });
+
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem('session') || 'null'); } catch (e) {}
+  if (saved && saved.store && saved.pw) {
+    state.store = saved.store;
+    state.pw = saved.pw;
+    state.rates = saved.rates || DEFAULT_RATES;
+    showMain();
+  } else {
+    showScreen('loginScreen');
+    showLoading(false);
+  }
+});
 
 function showScreen(id) {
-  ['loginScreen','mainScreen'].forEach(s=>{
-    const el=document.getElementById(s);
-    el.classList.remove('active');
-  });
-  document.getElementById(id).classList.add('active');
+  ['loginScreen', 'mainScreen'].forEach(s => $(s).classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0, 0);
 }
 
 // ── 로그인 ──
-async function login() {
-  const raw = document.getElementById('storeCodeInput').value.trim();
-  if(!raw) return;
-  const code = raw.padStart(5,'0');
-  loading(true);
-  try {
-    const res = await api('validateStore',{code});
-    if(res.valid){
-      state.store = res.store;
-      sessionStorage.setItem('store', JSON.stringify(res.store));
-      showMain();
-    } else {
-      const e = document.getElementById('loginErr');
-      e.textContent = res.message||'등록되지 않은 점포코드입니다.';
-      e.classList.add('show');
-    }
-  } catch(e) {
-    const el = document.getElementById('loginErr');
-    el.textContent = '서버 연결 오류. 잠시 후 다시 시도해주세요.';
-    el.classList.add('show');
-  }
-  loading(false);
+function showLoginError(msg) {
+  const err = $('loginError');
+  err.textContent = msg;
+  err.classList.add('show');
 }
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('storeCodeInput').addEventListener('keydown',e=>{
-    if(e.key==='Enter') login();
-  });
-});
-
+async function login() {
+  const rawCode = $('storeCodeInput').value.trim();
+  const pw = $('storePwInput').value.trim();
+  if (!rawCode) return showLoginError('점포코드를 입력해 주세요.');
+  if (!pw) return showLoginError('비밀번호를 입력해 주세요.');
+  const code = rawCode.padStart(5, '0');
+  document.activeElement && document.activeElement.blur();
+  showLoading(true);
+  $('loginBtn').disabled = true;
+  try {
+    const res = await callServer(JSON.stringify({ action: 'validateStore', code, pw }));
+    if (res && res.valid) {
+      state.store = res.store;
+      state.pw = pw;
+      state.rates = res.feeRates || DEFAULT_RATES;
+      try { sessionStorage.setItem('session', JSON.stringify({ store: res.store, pw, rates: state.rates })); } catch (e) {}
+      $('storePwInput').value = '';
+      $('loginError').classList.remove('show');
+      $('loginBtn').disabled = false;
+      showMain();
+      return;
+    }
+    showLoginError((res && (res.message || res.error)) || '점포코드 또는 비밀번호가 올바르지 않습니다.');
+  } catch (e) {
+    showLoginError('서버 연결 오류. 잠시 후 다시 시도해 주세요.');
+  }
+  $('loginBtn').disabled = false;
+  showLoading(false);
+}
 function logout() {
-  sessionStorage.removeItem('store'); state.store=null;
-  document.getElementById('storeCodeInput').value='';
-  document.getElementById('loginErr').classList.remove('show');
+  try { sessionStorage.removeItem('session'); } catch (e) {}
+  state.store = null;
+  state.pw = null;
+  $('storeCodeInput').value = '';
+  $('storePwInput').value = '';
+  $('loginError').classList.remove('show');
+  closeForm();
   showScreen('loginScreen');
 }
-
 function showMain() {
-  document.getElementById('storeBadge').textContent = state.store.name;
+  $('storeBadge').textContent = state.store.name;
   showScreen('mainScreen');
-  state.calYear=today.getFullYear(); state.calMonth=today.getMonth()+1;
-  initWeek(); loadCalendar();
+  switchTab('calendar', true);
+  state.calYear = today.getFullYear();
+  state.calMonth = today.getMonth() + 1;
+  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  d.setDate(d.getDate() - d.getDay());
+  state.weekStart = d;
+  buildSalesFields();
+  loadCalendar();
 }
 
 // ── 탭 ──
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+function switchTab(name, silent) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
+  window.scrollTo(0, 0);
+  if (silent) return;
+  if (name === 'weekly') loadWeekReport();
+  if (name === 'monthly') loadMonthReport();
 }
 
 // ── 달력 ──
 async function loadCalendar() {
-  loading(true);
+  showLoading(true);
+  let res = null;
   try {
-    const res = await api('getReport',{code:state.store.code,year:state.calYear,month:state.calMonth});
-    renderCal(res);
-  } catch(e){ renderCal(null); }
-  loading(false);
+    res = await api('getReport', { year: state.calYear, month: state.calMonth });
+  } catch (e) {
+    if (state.store) showToast('조회 실패: ' + (e.message || '다시 시도해 주세요.'), 'error');
+  }
+  if (state.store) renderCalendar(res);
+  showLoading(false);
 }
+function renderCalendar(res) {
+  const y = state.calYear, m = state.calMonth;
+  $('calTitle').textContent = `${y}년 ${m}월`;
 
-function renderCal(res) {
-  const y=state.calYear, m=state.calMonth;
-  document.getElementById('calTitle').textContent=`${y}년 ${m}월`;
+  const sum = (res && res.summary) || {};
+  const profitCls = (sum.netProfit || 0) >= 0 ? 'profit-pos' : 'profit-neg';
+  $('monthCards').innerHTML = `
+    <div class="month-card"><div class="mc-label">총매출</div><div class="mc-value sales">${fmtShort(sum.totalSales)}원</div></div>
+    <div class="month-card"><div class="mc-label">총지출</div><div class="mc-value expense">${fmtShort(sum.totalExpense)}원</div></div>
+    <div class="month-card"><div class="mc-label">순익</div><div class="mc-value ${profitCls}">${fmtShort(sum.netProfit)}원</div></div>`;
 
-  const sum = res?.summary||{};
-  const pc = (sum.netProfit||0)>=0?'pp':'pn';
-  document.getElementById('monthCards').innerHTML=`
-    <div class="month-card"><div class="mc-label">총매출</div><div class="mc-val s">${fmtN(sum.totalSales)}원</div></div>
-    <div class="month-card"><div class="mc-label">총지출</div><div class="mc-val e">${fmtN(sum.totalExpense)}원</div></div>
-    <div class="month-card"><div class="mc-label">순익</div><div class="mc-val ${pc}">${fmtN(sum.netProfit)}원</div></div>`;
-
-  state.calData={};
-  if(res?.dailySales) Object.entries(res.dailySales).forEach(([d,v])=>{
-    const k=`${y}-${padZ(m)}-${padZ(parseInt(d))}`;
-    if(!state.calData[k]) state.calData[k]={sales:0,expense:0};
-    state.calData[k].sales=v||0;
+  state.calData = {};
+  const put = (obj, field) => Object.entries(obj || {}).forEach(([day, v]) => {
+    const key = `${y}-${padZ(m)}-${padZ(parseInt(day, 10))}`;
+    if (!state.calData[key]) state.calData[key] = { sales: 0, expense: 0 };
+    state.calData[key][field] = v || 0;
   });
-  if(res?.dailyExpense) Object.entries(res.dailyExpense).forEach(([d,v])=>{
-    const k=`${y}-${padZ(m)}-${padZ(parseInt(d))}`;
-    if(!state.calData[k]) state.calData[k]={sales:0,expense:0};
-    state.calData[k].expense=v||0;
-  });
+  if (res) { put(res.dailySales, 'sales'); put(res.dailyExpense, 'expense'); }
 
-  const first=new Date(y,m-1,1).getDay();
-  const days=new Date(y,m,0).getDate();
-  const todayS=toDS(today);
-  let html='';
-  for(let i=0;i<first;i++) html+=`<div class="cal-day empty"></div>`;
-  for(let d=1;d<=days;d++){
-    const ds=`${y}-${padZ(m)}-${padZ(d)}`;
-    const isT=ds===todayS;
-    const dd=state.calData[ds];
-    const hasD=!!dd;
-    html+=`<div class="cal-day ${isT?'today':''} ${hasD?'has-data':''}" onclick="openDay('${ds}')">
+  const firstDay = new Date(y, m - 1, 1).getDay();
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const todayStr = toDateStr(today);
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${y}-${padZ(m)}-${padZ(d)}`;
+    const dd = state.calData[ds];
+    html += `<div class="cal-day ${ds === todayStr ? 'today' : ''} ${dd ? 'has-data' : ''}" onclick="openDay('${ds}')">
       <div class="day-num">${d}</div>
-      ${hasD&&dd.sales>0?`<div class="day-sales">▲${fmtN(dd.sales)}</div>`:''}
-      ${hasD&&dd.expense>0?`<div class="day-expense">▼${fmtN(dd.expense)}</div>`:''}
+      ${dd && dd.sales > 0 ? `<div class="day-sales">${fmtShort(dd.sales)}</div>` : ''}
+      ${dd && dd.expense > 0 ? `<div class="day-expense">-${fmtShort(dd.expense)}</div>` : ''}
     </div>`;
   }
-  document.getElementById('calDays').innerHTML=html;
+  const tail = (7 - ((firstDay + daysInMonth) % 7)) % 7;
+  for (let i = 0; i < tail; i++) html += '<div class="cal-day empty"></div>';
+  $('calDays').innerHTML = html;
 }
-
-function changeMonth(dir){
-  state.calMonth+=dir;
-  if(state.calMonth>12){state.calMonth=1;state.calYear++;}
-  if(state.calMonth<1){state.calMonth=12;state.calYear--;}
+function changeMonth(dir) {
+  state.calMonth += dir;
+  if (state.calMonth > 12) { state.calMonth = 1; state.calYear++; }
+  if (state.calMonth < 1) { state.calMonth = 12; state.calYear--; }
   loadCalendar();
 }
 
-// ── 폼 ──
-async function openDay(ds){
-  state.currentDate=ds; loading(true);
-  try{ const res=await api('getDailyReport',{code:state.store.code,date:ds}); openForm(ds,res); }
-  catch(e){ openForm(ds,null); }
-  loading(false);
-}
-
-function openForm(ds,data){
-  const [y,m,d]=ds.split('-');
-  document.getElementById('formDate').textContent=`${y}.${m}.${d}`;
-  const hasSales=data?.salesRow?.length>0;
-  document.getElementById('formTitle').textContent=hasSales?'정산 수정':'정산 입력';
-
-  ['hall_cash','hall_card','baemin','baeminone','coupang','yogiyo','ddanggyeo','orders'].forEach(k=>{
-    const el=document.getElementById('f_'+k);
-    el.value=''; el.dataset.raw='';
-  });
-  document.getElementById('f_memo').value='';
-  document.getElementById('f_ddanggyeo_fee').value='';
-
-  if(hasSales){
-    const r=data.salesRow;
-    siv('f_hall_cash',r[3]); siv('f_hall_card',r[4]);
-    siv('f_baemin',r[5]); siv('f_baeminone',r[7]);
-    siv('f_coupang',r[9]); siv('f_yogiyo',r[11]);
-    siv('f_ddanggyeo',r[13]); siv('f_orders',r[17]);
-    document.getElementById('f_memo').value=r[19]||'';
-  }
-
-  document.getElementById('expItems').innerHTML='';
-  if(data?.expenses?.length>0) data.expenses.forEach(item=>addExp(item));
-  else addExp();
-
-  ct();
-  document.getElementById('formScreen').classList.add('active');
-  window.scrollTo(0,0);
-}
-function closeForm(){ document.getElementById('formScreen').classList.remove('active'); }
-
-// 콤마 포맷
-function fi(el){
-  const raw=el.value.replace(/[^0-9]/g,'');
-  el.dataset.raw=raw;
-  el.value=raw?(parseInt(raw)||0).toLocaleString('ko-KR'):'';
-}
-function gr(id){
-  const el=document.getElementById(id);
-  if(!el) return 0;
-  if(el.dataset?.raw) return parseFloat(el.dataset.raw)||0;
-  return parseFloat((el.value||'').replace(/,/g,''))||0;
-}
-function siv(id,val){
-  const el=document.getElementById(id); if(!el) return;
-  if(el.type==='hidden'){el.value=val;return;}
-  const n=parseFloat(val)||0;
-  el.dataset.raw=String(n);
-  el.value=n>0?n.toLocaleString('ko-KR'):'';
-}
-
-function addExp(data=null){
-  const wrap=document.getElementById('expItems');
-  const div=document.createElement('div'); div.className='exp-row';
-  div.innerHTML=`
-    <select class="exp-sel" onchange="ct()">
-      <option value="">구분</option>
-      ${CATS.map(c=>`<option value="${c}" ${data?.category===c?'selected':''}>${c}</option>`).join('')}
-    </select>
-    <input type="text" inputmode="numeric" class="exp-amt" placeholder="금액"
-           value="${data&&data.amount>0?Number(data.amount).toLocaleString('ko-KR'):''}"
-           oninput="fi(this);ct()">
-    <button class="del-btn" onclick="this.parentElement.remove();ct()">×</button>`;
-  wrap.appendChild(div);
-}
-
-function ct(){
-  const v=gr;
-  const fhc=Math.round(v('f_hall_card')*0.008); // 홀카드 수수료 0.8%
-  document.getElementById('f_hall_card_fee').value=fhc;
-  document.getElementById('fee_hall_card').textContent=fmtN(fhc);
-
-  const sales=v('f_hall_cash')+v('f_hall_card')+v('f_baemin')+v('f_baeminone')+v('f_coupang')+v('f_yogiyo')+v('f_ddanggyeo');
-  const fb=Math.round(v('f_baemin')*0.10);
-  const fb1=Math.round(v('f_baeminone')*0.25);
-  const fc=Math.round(v('f_coupang')*0.35);
-  const fy=Math.round(v('f_yogiyo')*0.15);
-  const fd=Math.round(v('f_ddanggyeo')*0.02);
-  document.getElementById('f_ddanggyeo_fee').value=fd;
-  document.getElementById('fee_baemin').textContent=fmtN(fb);
-  document.getElementById('fee_baeminone').textContent=fmtN(fb1);
-  document.getElementById('fee_coupang').textContent=fmtN(fc);
-  document.getElementById('fee_yogiyo').textContent=fmtN(fy);
-  document.getElementById('fee_ddanggyeo').textContent=fmtN(fd);
-
-  let exp=0;
-  document.querySelectorAll('.exp-amt').forEach(el=>exp+=parseFloat((el.value||'').replace(/,/g,''))||0);
-  const fee=fhc+fb+fb1+fc+fy+fd;
-  const profit=sales-fee-exp;
-
-  document.getElementById('sum_s').textContent=fmtN(sales)+'원';
-  document.getElementById('sum_e').textContent=fmtN(exp)+'원';
-  const pe=document.getElementById('sum_p');
-  pe.textContent=fmtN(profit)+'원';
-  pe.className='sum-val '+(profit>=0?'sv-p':'sv-e');
-}
-
-async function saveData(){
-  const v=gr;
-  const sd={storeCode:state.store.code,date:state.currentDate,
-    cash:v('f_hall_cash'),card:v('f_hall_card'),
-    hall_card_fee:parseFloat(document.getElementById('f_hall_card_fee').value)||0,
-    baemin:v('f_baemin'),baeminone:v('f_baeminone'),
-    coupang:v('f_coupang'),yogiyo:v('f_yogiyo'),ddanggyeo:v('f_ddanggyeo'),
-    ddanggyeo_fee:parseFloat(document.getElementById('f_ddanggyeo_fee').value)||0,
-    orders:v('f_orders'),memo:document.getElementById('f_memo').value};
-  const items=[];
-  document.querySelectorAll('.exp-row').forEach(row=>{
-    const cat=row.querySelector('.exp-sel').value;
-    const amt=parseFloat((row.querySelector('.exp-amt').value||'').replace(/,/g,''))||0;
-    if(cat&&amt>0) items.push({category:cat,name:cat,amount:amt});
-  });
-  loading(true);
-  try{
-    await api('saveSales',{data:sd});
-    if(items.length>0) await api('saveExpense',{data:{storeCode:state.store.code,date:state.currentDate,items}});
-    toast('✅ 저장 완료!','ok'); closeForm(); loadCalendar();
-  }catch(e){ toast('저장 실패. 다시 시도해 주세요.','err'); }
-  loading(false);
-}
-
-// ── 주간 ──
-function initWeek(){
-  const d=new Date(today); d.setDate(d.getDate()-d.getDay());
-  state.weekStart=d; renderWeekNav();
-}
-function changeWeek(dir){
-  const d=new Date(state.weekStart); d.setDate(d.getDate()+dir*7);
-  state.weekStart=d; renderWeekNav();
-}
-function renderWeekNav(){
-  const s=new Date(state.weekStart),e=new Date(s); e.setDate(e.getDate()+6);
-  document.getElementById('weekLabel').textContent=`${s.getMonth()+1}/${s.getDate()} - ${e.getMonth()+1}/${e.getDate()}`;
-  const days=['일','월','화','수','목','금','토'];
-  document.getElementById('weekGrid').innerHTML=days.map((name,i)=>{
-    const d=new Date(s); d.setDate(d.getDate()+i);
-    const isT=toDS(d)===toDS(today);
-    return `<div class="wday-card">
-      <div class="wday-name">${name}</div>
-      <div class="wday-date" style="${isT?'color:var(--primary)':''}">${d.getDate()}</div>
-      <div class="wday-sales" id="wd_${i}">-</div>
+// ── 정산 폼 ──
+function buildSalesFields() {
+  $('salesFields').innerHTML = CHANNELS.map(c => {
+    const pct = Math.round((state.rates[c.k] || 0) * 1000) / 10;
+    return `<div class="field-row">
+      <div class="field-label">${c.label}</div>
+      <div class="field-right">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" class="field-input" id="f_${c.k}" placeholder="0" oninput="formatInput(this);calcTotal()">
+        <div class="fee-hint">수수료 ${pct}% → <span id="fee_${c.k}">0</span>원</div>
+      </div>
     </div>`;
   }).join('');
 }
-async function loadWeekReport(){
-  const s=new Date(state.weekStart); loading(true);
-  try{
-    const res=await api('getReport',{code:state.store.code,year:s.getFullYear(),month:s.getMonth()+1});
-    renderWeek(res,s);
-  }catch(e){toast('조회 실패','err');}
-  loading(false);
+async function openDay(ds) {
+  state.currentDate = ds;
+  showLoading(true);
+  try {
+    const res = await api('getDailyReport', { date: ds });
+    openForm(ds, res);
+  } catch (e) {
+    // 조회에 실패한 채로 빈 폼을 열면 기존 데이터를 덮어쓸 수 있으므로 열지 않음
+    if (state.store) showToast('불러오기 실패. 다시 시도해 주세요.', 'error');
+  }
+  showLoading(false);
 }
-function renderWeek(res,startDate){
-  if(!res?.summary) return;
-  const sum=res.summary;
-  const end=new Date(startDate); end.setDate(end.getDate()+6);
-  let wSales=0;
-  if(res.dailySales) Object.entries(res.dailySales).forEach(([day,v])=>{
-    const d=new Date(startDate.getFullYear(),startDate.getMonth(),parseInt(day));
-    if(d>=startDate&&d<=end) wSales+=v||0;
+function setInputVal(id, val) {
+  const el = $(id);
+  if (!el) return;
+  const n = Math.round(Number(val) || 0);
+  el.value = n > 0 ? n.toLocaleString('ko-KR') : '';
+}
+function openForm(ds, data) {
+  const [y, m, d] = ds.split('-');
+  $('formDateBadge').textContent = `${y}.${m}.${d}`;
+  const s = (data && data.sales) || null;
+  $('formTitle').textContent = s ? '정산 수정' : '정산 입력';
+
+  state.hidden = { cash: s ? s.cash || 0 : 0, card: s ? s.card || 0 : 0 };
+  CHANNELS.forEach(c => setInputVal('f_' + c.k, s ? s[c.k] : 0));
+  setInputVal('f_orders', s ? s.orders : 0);
+  $('f_memo').value = s ? (s.memo || '') : '';
+
+  $('expenseItems').innerHTML = '';
+  if (data && data.expenses && data.expenses.length > 0) data.expenses.forEach(item => addExpenseItem(item));
+  else addExpenseItem();
+
+  calcTotal();
+  $('formScreen').classList.add('active');
+  $('formBody').scrollTop = 0;
+}
+function closeForm() {
+  document.activeElement && document.activeElement.blur && document.activeElement.blur();
+  $('formScreen').classList.remove('active');
+}
+function addExpenseItem(data, focus) {
+  const cats = CATEGORIES.slice();
+  // 목록에 없는 예전 구분도 사라지지 않게 유지
+  if (data && data.category && cats.indexOf(String(data.category)) === -1) cats.push(String(data.category));
+  const div = document.createElement('div');
+  div.className = 'expense-row';
+  div.innerHTML = `
+    <select class="exp-select" onchange="calcTotal()">
+      <option value="">구분 선택</option>
+      ${cats.map(c => `<option value="${esc(c)}" ${data && String(data.category) === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+    </select>
+    <input type="text" inputmode="numeric" pattern="[0-9]*" class="exp-input" placeholder="금액"
+           value="${data && data.amount > 0 ? Number(data.amount).toLocaleString('ko-KR') : ''}"
+           oninput="formatInput(this);calcTotal()">
+    <button class="del-btn" onclick="this.parentElement.remove();calcTotal()" aria-label="삭제">×</button>`;
+  $('expenseItems').appendChild(div);
+  if (focus) div.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+// 콤마 포맷 입력
+function formatInput(el) {
+  const n = digits(el.value);
+  el.value = n > 0 ? n.toLocaleString('ko-KR') : '';
+}
+function getRaw(id) { const el = $(id); return el ? digits(el.value) : 0; }
+
+function calcTotal() {
+  const r = state.rates;
+  let sales = state.hidden.cash + state.hidden.card;
+  let totalFee = Math.round(state.hidden.card * (r.card || 0));
+  CHANNELS.forEach(c => {
+    const v = getRaw('f_' + c.k);
+    const fee = Math.round(v * (r[c.k] || 0));
+    sales += v;
+    totalFee += fee;
+    const el = $('fee_' + c.k);
+    if (el) el.textContent = fmtN(fee);
   });
-  document.getElementById('weekContent').innerHTML=`
-    <div class="profit-banner">
-      <div class="pb-lbl">주간 매출 합계</div>
-      <div class="pb-val">${fmtN(wSales)}원</div>
-      <div class="pb-meta">
-        <div class="pb-mi">월 총매출 <span>${fmtN(sum.totalSales)}원</span></div>
-        <div class="pb-mi">순이익률 <span>${sum.profitRate||0}%</span></div>
-      </div>
-    </div>
-    ${chCard(res.salesByChannel)}
-    ${expCard(res.expenseByCategory,sum.totalSales)}`;
+  let expense = 0;
+  document.querySelectorAll('.exp-input').forEach(el => expense += digits(el.value));
+  const profit = sales - totalFee - expense;
+
+  $('sum_sales').textContent = fmtN(sales) + '원';
+  $('sum_expense').textContent = fmtN(expense) + '원';
+  const pEl = $('sum_profit');
+  pEl.textContent = fmtN(profit) + '원';
+  pEl.className = 'sum-val ' + (profit >= 0 ? 'p' : 'e');
+}
+
+async function saveData() {
+  if (state.saving) return;   // 중복 터치 방지
+
+  const sales = { cash: state.hidden.cash, card: state.hidden.card, orders: getRaw('f_orders'), memo: $('f_memo').value };
+  CHANNELS.forEach(c => sales[c.k] = getRaw('f_' + c.k));
+
+  const items = [];
+  let missingCat = false;
+  document.querySelectorAll('.expense-row').forEach(row => {
+    const cat = row.querySelector('.exp-select').value;
+    const amt = digits(row.querySelector('.exp-input').value);
+    if (amt > 0 && !cat) missingCat = true;
+    if (cat && amt > 0) items.push({ category: cat, name: cat, amount: amt });
+  });
+  if (missingCat) return showToast('금액을 넣은 지출의 구분을 선택해 주세요.', 'error');
+
+  state.saving = true;
+  $('saveBtn').disabled = true;
+  showLoading(true);
+  try {
+    // 매출+지출을 한 번에 저장 (항목이 0개여도 보내야 기존 지출이 지워짐)
+    await api('saveDay', { data: { date: state.currentDate, sales, items } });
+    showToast('✅ 저장 완료!', 'success');
+    closeForm();
+    await loadCalendar();
+  } catch (e) {
+    if (state.store) showToast('저장 실패: ' + (e.message || '다시 시도해 주세요.'), 'error');
+  }
+  state.saving = false;
+  $('saveBtn').disabled = false;
+  showLoading(false);
+}
+
+// ── 주간 ──
+function weekDays() {
+  const out = [];
+  for (let i = 0; i < 7; i++) { const d = new Date(state.weekStart); d.setDate(d.getDate() + i); out.push(d); }
+  return out;
+}
+function renderWeekGrid(dailySales) {
+  const days = weekDays();
+  const names = ['일', '월', '화', '수', '목', '금', '토'];
+  const todayStr = toDateStr(today);
+  $('weekLabel').textContent = `${days[0].getMonth() + 1}/${days[0].getDate()} ~ ${days[6].getMonth() + 1}/${days[6].getDate()}`;
+  $('weekGrid').innerHTML = days.map((d, i) => {
+    const ds = toDateStr(d);
+    const v = dailySales ? (dailySales[ds] || 0) : null;
+    return `<div class="wday-card ${ds === todayStr ? 'today' : ''}">
+      <div class="wday-name">${names[i]}</div>
+      <div class="wday-date">${d.getDate()}</div>
+      <div class="wday-sales">${v === null ? '-' : (v > 0 ? fmtShort(v) : '-')}</div>
+    </div>`;
+  }).join('');
+}
+function changeWeek(dir) {
+  const d = new Date(state.weekStart);
+  d.setDate(d.getDate() + dir * 7);
+  state.weekStart = d;
+  loadWeekReport();
+}
+async function loadWeekReport() {
+  renderWeekGrid(null);
+  $('weekReportContent').innerHTML = '';
+  const days = weekDays();
+  showLoading(true);
+  try {
+    // 기간으로 조회하므로 월이 걸친 주도 정확함
+    const res = await api('getRangeReport', { start: toDateStr(days[0]), end: toDateStr(days[6]) });
+    renderWeekGrid(res.dailySales || {});
+    $('weekReportContent').innerHTML = reportHtml(res, '주간 순익 (세전)');
+  } catch (e) {
+    if (state.store) showToast('조회 실패: ' + (e.message || ''), 'error');
+  }
+  showLoading(false);
 }
 
 // ── 월간 ──
-async function loadMonthReport(){
-  const y=parseInt(document.getElementById('rYear').value);
-  const m=parseInt(document.getElementById('rMonth').value);
-  loading(true);
-  try{
-    const res=await api('getReport',{code:state.store.code,year:y,month:m});
-    renderMonth(res,y,m);
-  }catch(e){toast('조회 실패','err');}
-  loading(false);
+async function loadMonthReport() {
+  const y = parseInt($('reportYear').value, 10);
+  const m = parseInt($('reportMonth').value, 10);
+  showLoading(true);
+  try {
+    const res = await api('getReport', { year: y, month: m });
+    $('monthReportContent').innerHTML = reportHtml(res, `${y}년 ${m}월 순익 (세전)`);
+  } catch (e) {
+    if (state.store) showToast('조회 실패: ' + (e.message || ''), 'error');
+  }
+  showLoading(false);
 }
-function renderMonth(res,y,m){
-  if(!res?.summary) return;
-  const sum=res.summary; const pos=sum.netProfit>=0;
-  document.getElementById('monthContent').innerHTML=`
-    <div class="profit-banner ${pos?'':'neg'}">
-      <div class="pb-lbl">${y}년 ${m}월 순익 (세전)</div>
-      <div class="pb-val">${fmtN(sum.netProfit)}원</div>
+
+// ── 리포트 공통 ──
+function reportHtml(res, title) {
+  if (!res || !res.summary) return '';
+  const sum = res.summary;
+  return `
+    <div class="profit-banner ${sum.netProfit >= 0 ? '' : 'neg'}">
+      <div class="pb-label">${esc(title)}</div>
+      <div class="pb-value">${fmtN(sum.netProfit)}원</div>
       <div class="pb-meta">
-        <div class="pb-mi">총매출 <span>${fmtN(sum.totalSales)}원</span></div>
-        <div class="pb-mi">수수료 <span>${fmtN(sum.totalFee)}원</span></div>
-        <div class="pb-mi">지출 <span>${fmtN(sum.totalExpense)}원</span></div>
-        <div class="pb-mi">주문수 <span>${fmtN(sum.totalOrders)}건</span></div>
-        <div class="pb-mi">객단가 <span>${fmtN(sum.avgOrder)}원</span></div>
-        <div class="pb-mi">순이익률 <span>${sum.profitRate||0}%</span></div>
+        <div class="pb-meta-item">총매출 <span>${fmtN(sum.totalSales)}원</span></div>
+        <div class="pb-meta-item">수수료 <span>${fmtN(sum.totalFee)}원</span></div>
+        <div class="pb-meta-item">지출 <span>${fmtN(sum.totalExpense)}원</span></div>
+        <div class="pb-meta-item">순이익률 <span>${sum.profitRate || 0}%</span></div>
+        <div class="pb-meta-item">주문수 <span>${fmtN(sum.totalOrders)}건</span></div>
+        <div class="pb-meta-item">객단가 <span>${fmtN(sum.avgOrder)}원</span></div>
       </div>
     </div>
-    <div class="r-card"><h3>채널별 매출 분포</h3>${donut(chData(res.salesByChannel))}</div>
-    ${chCard(res.salesByChannel)}
-    ${expCard(res.expenseByCategory,sum.totalSales)}`;
+    ${channelCard(res.salesByChannel)}
+    ${expenseCard(res.expenseByCategory, sum.totalSales)}`;
 }
-
-// ── 차트 ──
-function chData(ch){
-  if(!ch) return [];
-  const L={baemin:'배민',baeminone:'배민원',coupang:'쿠팡이츠',yogiyo:'요기요',ddanggyeo:'땡겨요'};
-  return Object.entries(ch).filter(([,v])=>v>0).map(([k,v],i)=>({label:L[k]||k,value:v,color:COLORS[i%COLORS.length]}));
+function buildChannelData(ch) {
+  if (!ch) return [];
+  const labels = { cash: '현금', card: '후불카드', baemin: '배민', baeminone: '배민원', coupang: '쿠팡이츠', yogiyo: '요기요', ddanggyeo: '땡겨요', doit: '두잇' };
+  return Object.entries(ch).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1])
+    .map(([k, v], i) => ({ label: labels[k] || k, value: v, color: COLORS[i % COLORS.length] }));
 }
-function expData(exp){
-  if(!exp) return [];
-  return Object.entries(exp).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>({label:k,value:v,color:COLORS[i%COLORS.length]}));
+function buildExpenseData(exp) {
+  if (!exp) return [];
+  return Object.entries(exp).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1])
+    .map(([k, v], i) => ({ label: k, value: v, color: COLORS[i % COLORS.length] }));
 }
-
-function donut(items){
-  if(!items?.length) return '<div style="color:var(--text3);font-size:12px">데이터 없음</div>';
-  const total=items.reduce((s,i)=>s+i.value,0); if(!total) return '';
-  const r=52,cx=68,cy=68,sw=20,circ=2*Math.PI*r;
-  let off=0,paths='';
-  items.forEach(item=>{
-    const pct=item.value/total,dash=pct*circ,gap=circ-dash;
-    paths+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${item.color}" stroke-width="${sw}" stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
-    off+=dash;
+// ring: 도넛 조각 / legendItems: 범례 / pctBase: 퍼센트 기준값
+function donut(ring, legendItems, pctBase, centerTop, centerBottom) {
+  const total = ring.reduce((s, i) => s + i.value, 0) || 1;
+  const r = 50, cx = 64, cy = 64, sw = 20, circ = 2 * Math.PI * r;
+  let offset = 0, paths = '';
+  ring.forEach(item => {
+    const dash = item.value / total * circ;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${item.color}" stroke-width="${sw}" stroke-dasharray="${dash.toFixed(2)} ${(circ - dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += dash;
   });
-  const legend=items.map(item=>`
+  const legend = legendItems.map(item => `
     <div class="leg-item">
       <div class="leg-dot" style="background:${item.color}"></div>
-      <div class="leg-lbl">${item.label}</div>
-      <div class="leg-pct" style="color:${item.color}">${Math.round(item.value/total*100)}%</div>
+      <div class="leg-lbl">${esc(item.label)}</div>
+      <div class="leg-pct" style="color:${item.color}">${pctBase ? Math.round(item.value / pctBase * 100) : 0}%</div>
     </div>`).join('');
   return `<div class="donut-wrap">
-    <svg width="136" height="136" style="flex-shrink:0">
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg)" stroke-width="${sw}"/>
+    <svg width="128" height="128" viewBox="0 0 128 128">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#F2F4F6" stroke-width="${sw}"/>
       ${paths}
-      <text x="${cx}" y="${cy-3}" text-anchor="middle" fill="var(--text3)" font-size="10" font-family="Noto Sans KR">총매출</text>
-      <text x="${cx}" y="${cy+13}" text-anchor="middle" fill="var(--text1)" font-size="11" font-weight="700" font-family="Noto Sans KR">${(total/10000).toFixed(0)}만원</text>
+      <text x="${cx}" y="${cy - 3}" text-anchor="middle" fill="#8B95A1" font-size="11">${esc(centerTop)}</text>
+      <text x="${cx}" y="${cy + 14}" text-anchor="middle" fill="#191F28" font-size="13" font-weight="700">${esc(centerBottom)}</text>
     </svg>
     <div class="donut-legend">${legend}</div>
   </div>`;
 }
-
-function donutVsTotal(items,totalSales){
-  if(!items?.length) return '<div style="color:var(--text3);font-size:12px">데이터 없음</div>';
-  const expTotal=items.reduce((s,i)=>s+i.value,0);
-  const base=totalSales||expTotal||1;
-  const remaining=Math.max(0,base-expTotal);
-  const all=[...items];
-  if(remaining>0) all.push({label:'잔여',value:remaining,color:'#E5E8EB'});
-  const total=all.reduce((s,i)=>s+i.value,0)||1;
-  const r=52,cx=68,cy=68,sw=20,circ=2*Math.PI*r;
-  let off=0,paths='';
-  all.forEach(item=>{
-    const pct=item.value/total,dash=pct*circ,gap=circ-dash;
-    paths+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${item.color}" stroke-width="${sw}" stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
-    off+=dash;
-  });
-  const legend=items.map(item=>`
-    <div class="leg-item">
-      <div class="leg-dot" style="background:${item.color}"></div>
-      <div class="leg-lbl">${item.label}</div>
-      <div class="leg-pct" style="color:${item.color}">${totalSales?Math.round(item.value/totalSales*100):0}%</div>
-    </div>`).join('');
-  return `<div class="donut-wrap">
-    <svg width="136" height="136" style="flex-shrink:0">
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg)" stroke-width="${sw}"/>
-      ${paths}
-      <text x="${cx}" y="${cy-3}" text-anchor="middle" fill="var(--text3)" font-size="10" font-family="Noto Sans KR">매출대비</text>
-      <text x="${cx}" y="${cy+13}" text-anchor="middle" fill="var(--text1)" font-size="11" font-weight="700" font-family="Noto Sans KR">${totalSales?Math.round(expTotal/totalSales*100):0}%</text>
-    </svg>
-    <div class="donut-legend">${legend}</div>
-  </div>`;
-}
-
-function chCard(ch){
-  const items=chData(ch);
-  const total=items.reduce((s,i)=>s+i.value,0);
-  const bars=items.map(item=>`
+function bars(items, base) {
+  return items.map(item => `
     <div class="bar-row">
-      <div class="bar-lbl">${item.label}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${total?Math.round(item.value/total*100):0}%;background:${item.color}"></div></div>
-      <div class="bar-amt">${fmtN(item.value)}</div>
+      <div class="bar-lbl">${esc(item.label)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${base ? Math.min(100, Math.round(item.value / base * 100)) : 0}%;background:${item.color}"></div></div>
+      <div class="bar-amt">${fmtShort(item.value)}원</div>
     </div>`).join('');
-  return `<div class="r-card"><h3>채널별 매출</h3>${bars||'<div style="color:var(--text3);font-size:12px">데이터 없음</div>'}</div>`;
 }
-
-function expCard(exp,totalSales){
-  const items=expData(exp);
-  const base=totalSales||items.reduce((s,i)=>s+i.value,0)||1;
-  const content=items.length>0?`
-    ${donutVsTotal(items,totalSales)}
-    <div style="margin-top:12px">${items.map(item=>`
-      <div class="bar-row">
-        <div class="bar-lbl">${item.label}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,Math.round(item.value/base*100))}%;background:${item.color}"></div></div>
-        <div class="bar-amt">${fmtN(item.value)}</div>
-      </div>`).join('')}</div>`
-    :'<div style="color:var(--text3);font-size:12px">데이터 없음</div>';
-  return `<div class="r-card"><h3>지출 항목별 현황 <span style="font-size:11px;font-weight:400;color:var(--text3)">(총매출 대비)</span></h3>${content}</div>`;
+function channelCard(ch) {
+  const items = buildChannelData(ch);
+  const total = items.reduce((s, i) => s + i.value, 0);
+  const body = items.length
+    ? `${donut(items, items, total, '총매출', fmtShort(total) + '원')}<div style="margin-top:16px">${bars(items, total)}</div>`
+    : '<div class="empty-msg">데이터 없음</div>';
+  return `<div class="r-card"><h3>채널별 매출</h3>${body}</div>`;
+}
+function expenseCard(exp, totalSales) {
+  const items = buildExpenseData(exp);
+  if (!items.length) return '<div class="r-card"><h3>지출 항목별 현황</h3><div class="empty-msg">데이터 없음</div></div>';
+  const expTotal = items.reduce((s, i) => s + i.value, 0);
+  const base = totalSales || expTotal;
+  const ring = items.slice();
+  const remaining = Math.max(0, base - expTotal);
+  if (remaining > 0) ring.push({ label: '잔여', value: remaining, color: '#E5E8EB' });
+  const centerVal = totalSales ? Math.round(expTotal / totalSales * 100) + '%' : fmtShort(expTotal) + '원';
+  return `<div class="r-card"><h3>지출 항목별 현황 <small>(총매출 대비)</small></h3>
+    ${donut(ring, items, base, totalSales ? '매출 대비 지출' : '총지출', centerVal)}
+    <div style="margin-top:16px">${bars(items, base)}</div>
+  </div>`;
 }
 </script>
 </body>
